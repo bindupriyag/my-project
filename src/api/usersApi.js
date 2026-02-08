@@ -4,14 +4,25 @@ function getBaseUrl() {
   return process.env.REACT_APP_API_BASE_URL || DEFAULT_BASE_URL;
 }
 
+export function getApiBaseUrl() {
+  return getBaseUrl();
+}
+
 async function request(path, options) {
-  const res = await fetch(`${getBaseUrl()}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options?.headers || {}),
-    },
-    ...options,
-  });
+  const url = `${getBaseUrl()}${path}`;
+  let res;
+  try {
+    res = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options?.headers || {}),
+      },
+      ...options,
+    });
+  } catch (e) {
+    const message = `Network error calling ${url}. If you're using the mock API, start it with: npm run api`;
+    throw new Error(message);
+  }
 
   if (!res.ok) {
     let bodyText = '';
